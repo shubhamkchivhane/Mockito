@@ -1,0 +1,100 @@
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+public class YourClassTest {
+
+    @InjectMocks
+    private YourClass yourClass;
+
+    @Mock
+    private JdbcTemplate jdbcTemplate;
+
+    @Mock
+    private SimpleJdbcCall simpleJdbcCall;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void getData_success() throws Exception {
+        // Mock data for successful output
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        Map<String, Object> resultMap1 = new HashMap<>();
+        resultMap1.put("name", "Test Name 1");
+        // Add data for salary, dept, empid, bank no, address
+        resultList.add(resultMap1);
+
+        Map<String, Object> outParam = new HashMap<>();
+        outParam.put("O_cur", resultList);
+        outParam.put("O_status", "SUCCESS");
+
+        // Mock JDBC calls
+        when(jdbcTemplate.execute(any(SimpleJdbcCall.class), any(SqlParameterSource.class))).thenReturn(outParam);
+
+        // Test data
+        Data data = new Data("test@email.com");
+
+        // Call the method under test
+        Result result = yourClass.getData(data);
+
+        // Assertions - Replace with your specific assertions based on Result class
+        assertEquals("SUCCESS", result.getStatus()); // Assuming Result has a getStatus() method
+
+        // Assert data transformation from outParam to DataBean objects
+        // ... (write assertions to verify data in result object based on your DataBean and Result classes)
+    }
+
+    @Test
+    public void getData_failure() throws Exception {
+        // Mock data for failure output
+        Map<String, Object> outParam = new HashMap<>();
+        outParam.put("O_status", "FAILURE");
+        outParam.put("O_status_msg", "Error message");
+
+        // Mock JDBC calls
+        when(jdbcTemplate.execute(any(SimpleJdbcCall.class), any(SqlParameterSource.class))).thenReturn(outParam);
+
+        // Test data
+        Data data = new Data("test@email.com");
+
+        // Call the method under test
+        Result result = yourClass.getData(data);
+
+        // Assertions - Replace with your specific assertions based on Result class
+        assertEquals("FAILURE", result.getStatus()); // Assuming Result has a getStatus() method
+        assertEquals("Error message", result.getMessage()); // Assuming Result has a getMessage() method for error messages
+    }
+
+    // Helper methods for creating test data (if needed)
+    // ...
+}
+
+// Your Data and Result classes (implementation not shown here)
+public class Data {
+    private String email;
+    // Getters and setters
+}
+
+public class Result {
+    private String status;
+    private String message;
+    // Getters and setters
+}
